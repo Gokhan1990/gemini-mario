@@ -1,0 +1,29 @@
+name: Drive'dan Çek ve Yayınla
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Depoyu Klonla
+      uses: actions/checkout@v3
+
+    - name: Google Drive'dan Kodu İndir
+      run: |
+        curl -L "https://www.googleapis.com/drive/v3/files/${{ secrets.DRIVE_FILE_ID }}?alt=media&key=${{ secrets.GOOGLE_API_KEY }}" -o index.html
+
+    - name: GitHub'a Commit Et ve Pushla
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git add index.html
+        git commit -m "Google Drive'dan oyun kodu otomatik çekildi" || echo "Değişiklik yok"
+        git push
+        
