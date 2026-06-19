@@ -1,18 +1,20 @@
 name: Voice-to-Deploy Auto Pipeline
 
 on:
-  workflow_dispatch: # Otomasyonu manuel tetiklemek için (İsterseniz push veya schedule ekleyebilirsiniz)
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     
+    permissions:
+      contents: write
+
     steps:
       - name: Depoyu Klonla (Checkout)
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Google Docs'tan Kodu Saf Metin Olarak Çek
-        # Gizli Export URL'si: format=txt parametresi dokümanı saf koda çevirir
         run: |
           curl -L "https://docs.google.com/document/export?format=txt&id=${{ secrets.DRIVE_FILE_ID }}" -o index.html
 
@@ -22,5 +24,6 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add index.html
           git commit -m "Google Docs üzerinden otomatik kod güncellemesi" || echo "Değişecek bir şey yok"
+          git pull --rebase origin main
           git push
           
