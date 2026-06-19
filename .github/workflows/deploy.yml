@@ -2,6 +2,8 @@ name: Voice-to-Deploy Auto Pipeline
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *' # Her 5 dakikada bir otomatik tetikleme
 
 jobs:
   build-and-deploy:
