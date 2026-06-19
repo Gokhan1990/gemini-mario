@@ -1,29 +1,26 @@
-name: Drive'dan Çek ve Yayınla
+name: Voice-to-Deploy Auto Pipeline
 
 on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+  workflow_dispatch: # Otomasyonu manuel tetiklemek için (İsterseniz push veya schedule ekleyebilirsiniz)
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
+    
     steps:
-    - name: Depoyu Klonla
-      uses: actions/checkout@v3
+      - name: Depoyu Klonla (Checkout)
+        uses: actions/checkout@v3
 
-    - name: Google Drive'dan Kodu İndir
-      run: |
-        curl -L "https://www.googleapis.com/drive/v3/files/${{ secrets.DRIVE_FILE_ID }}?alt=media&key=${{ secrets.GOOGLE_API_KEY }}" -o index.html
+      - name: Google Docs'tan Kodu Saf Metin Olarak Çek
+        # Gizli Export URL'si: format=txt parametresi dokümanı saf koda çevirir
+        run: |
+          curl -L "https://docs.google.com/document/export?format=txt&id=${{ secrets.DRIVE_FILE_ID }}" -o index.html
 
-    - name: GitHub'a Commit Et ve Pushla
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git add index.html
-        git commit -m "Google Drive'dan oyun kodu otomatik çekildi" || echo "Değişiklik yok"
-        git push
-        
+      - name: Değişiklikleri GitHub'a Push Et
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Google Docs üzerinden otomatik kod güncellemesi" || echo "Değişecek bir şey yok"
+          git push
+          
